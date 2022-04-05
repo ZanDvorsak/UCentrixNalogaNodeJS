@@ -1,4 +1,4 @@
-{
+{  
   "compilerOptions": {
     "target": "es6",
     "module": "commonjs",
@@ -8,7 +8,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "data-source.ts", "server.ts", "loginRegister.ts"  ],
   "exclude": [
     "node_modules"
   ]

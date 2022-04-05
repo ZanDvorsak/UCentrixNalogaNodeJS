@@ -1,16 +1,20 @@
-import { Entity, PrimaryGeneratedColumn, Column, createConnection, Connection, Repository, OneToMany} from "typeorm"
-import { Blogs } from "./Blog"
+import { Entity, PrimaryGeneratedColumn, Column, createConnection, Connection, Repository, OneToMany, ManyToOne, BaseEntity} from "typeorm"
+import { blogs } from "./Blog"
 
 @Entity()
-export class Users {
+export class users{
 
     @PrimaryGeneratedColumn()
     id: number
 
-    @Column()
+    @Column({
+        unique: true
+    })
     email: string
 
-    @Column()
+    @Column({
+        unique: true
+    })
     username: string
 
     @Column()
@@ -52,6 +56,28 @@ export class Users {
     })
     biography: string
 
-    @OneToMany(type => Blogs, blog => blog.user) blogs: Blogs[];
+    @OneToMany(type => blogs, blog => blog.user) 
+    blogs: blogs[];
 
+}
+
+let connection:Connection;
+
+export async function getUserRepository(): Promise<Repository<users>> {
+    if (connection===undefined) {
+      connection = await createConnection({
+        type: "postgres",
+        host: "localhost",
+        port: 5432,
+        username: "Cdzan",
+        password: "admin123",
+        database: "UCentrixNaloga",
+        synchronize: true,
+        logging: false,
+        entities: [
+            users, blogs
+        ],
+      });
+    }
+    return connection.getRepository(users);
 }
