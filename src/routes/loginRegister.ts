@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response, Router } from 'express';
-import {getUserRepository, users } from '../models/User';
+import {users } from '../models/User';
 import "reflect-metadata";
+import {AppDataSource } from '../../data-source';
 
 export const router: Router = Router()
 
@@ -15,8 +16,8 @@ router.use(
     })
   );
 
+
 router.post('/register', async function (req: Request, res: Response, next: NextFunction) {
-        const userRepository = await getUserRepository();
         let success = true;        
         let emailValidator = require("email-validator");
         
@@ -27,7 +28,7 @@ router.post('/register', async function (req: Request, res: Response, next: Next
         let pass_sha = crypto.createHash('sha256').update(password).digest('hex');
         let firstName = req.body.firstName;
         let lastName = req.body.lastName;
-        
+        const getUserRepository = AppDataSource.getRepository(users);
         if(!emailValidator.validate(email))
         {
             res.send("Invalid email");
@@ -48,7 +49,7 @@ router.post('/register', async function (req: Request, res: Response, next: Next
             user.firstName = firstName;
             user.lastName = lastName; 
             try{
-                const result = await userRepository.save(user);
+                const result = await getUserRepository.save(user);
             }
             catch(error) {
                 success=false;
@@ -56,7 +57,7 @@ router.post('/register', async function (req: Request, res: Response, next: Next
                 res.end();
             }      
             if(success) {
-                res.redirect("/login");
+                res.redirect("/login/" + username);
             }
         }        
     });  
@@ -66,17 +67,17 @@ router.post('/login', async function (req: Request, res: Response, next: NextFun
    
         let email = req.body.email;
         let password = req.body.password;
-        let userRepository = await getUserRepository();
+        const getUserRepository = AppDataSource.getRepository(users);
         if(email && password)
         {
             let pass_sha = crypto.createHash('sha256').update(password).digest('hex');
-            let user = await userRepository.findOne({where: {email: email, password: pass_sha}});
+            let user = await getUserRepository.findOneBy({email: email, password: pass_sha});
             if(user) {
                 req.session.email = email;
                 req.session.username = user.username;
                 res.redirect("/blogs");
                 //res.send("login sucesfull");
-            res.end();            }
+                res.end();            }
             else {
                 res.send("Invalid email or password");
                 res.end();
@@ -86,4 +87,13 @@ router.post('/login', async function (req: Request, res: Response, next: NextFun
             res.send("invalid email or password");
             res.end()
         } 
-    });     
+    });   
+    
+router.get('/login', async function (req: Request, res: Response, next: NextFunction) {
+
+});
+
+router.get('/login/:username', async function (req: Request, res: Response, next: NextFunction) {
+    res.send("Hello " + req.params.username);
+    res.end();
+});

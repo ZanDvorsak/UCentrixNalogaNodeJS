@@ -9,47 +9,24 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.blogs = void 0;
+exports.jobTitle = void 0;
 const typeorm_1 = require("typeorm");
 const User_1 = require("./User");
-let blogs = class blogs {
+let jobTitle = class jobTitle {
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
     __metadata("design:type", Number)
-], blogs.prototype, "id", void 0);
+], jobTitle.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
-], blogs.prototype, "title", void 0);
+], jobTitle.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
-    __metadata("design:type", String)
-], blogs.prototype, "content", void 0);
-__decorate([
-    (0, typeorm_1.ManyToOne)(type => User_1.users, user => user.blogs),
-    __metadata("design:type", User_1.users)
-], blogs.prototype, "user", void 0);
-blogs = __decorate([
+    (0, typeorm_1.OneToMany)(type => User_1.users, user => user.jobTitle),
+    __metadata("design:type", Array)
+], jobTitle.prototype, "users", void 0);
+jobTitle = __decorate([
     (0, typeorm_1.Entity)()
-], blogs);
-exports.blogs = blogs;
-let connection;
-// export async function getBlogRepository(): Promise<Repository<blogs>> {
-//     if (connection===undefined) {
-//       connection = await createConnection({
-//         type: "postgres",
-//         host: "localhost",
-//         port: 5432,
-//         username: "Cdzan",
-//         password: "admin123",
-//         database: "UCentrixNaloga",
-//         synchronize: true,
-//         logging: false,
-//         entities: [
-//             blogs, users
-//         ],
-//       });
-//     }
-//     return connection.getRepository(blogs);
-//   }
+], jobTitle);
+exports.jobTitle = jobTitle;

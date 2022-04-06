@@ -13,6 +13,7 @@ exports.router = void 0;
 const express_1 = require("express");
 const User_1 = require("../models/User");
 require("reflect-metadata");
+const data_source_1 = require("../../data-source");
 exports.router = (0, express_1.Router)();
 const crypto = require('crypto');
 const session = require('express-session');
@@ -23,7 +24,6 @@ exports.router.use(session({
 }));
 exports.router.post('/register', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        const userRepository = yield (0, User_1.getUserRepository)();
         let success = true;
         let emailValidator = require("email-validator");
         let email = req.body.email;
@@ -33,6 +33,7 @@ exports.router.post('/register', function (req, res, next) {
         let pass_sha = crypto.createHash('sha256').update(password).digest('hex');
         let firstName = req.body.firstName;
         let lastName = req.body.lastName;
+        const getUserRepository = data_source_1.AppDataSource.getRepository(User_1.users);
         if (!emailValidator.validate(email)) {
             res.send("Invalid email");
         }
@@ -52,7 +53,7 @@ exports.router.post('/register', function (req, res, next) {
             user.firstName = firstName;
             user.lastName = lastName;
             try {
-                const result = yield userRepository.save(user);
+                const result = yield getUserRepository.save(user);
             }
             catch (error) {
                 success = false;
@@ -60,7 +61,7 @@ exports.router.post('/register', function (req, res, next) {
                 res.end();
             }
             if (success) {
-                res.redirect("/login");
+                res.redirect("/login/" + username);
             }
         }
     });
@@ -69,10 +70,10 @@ exports.router.post('/login', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let email = req.body.email;
         let password = req.body.password;
-        let userRepository = yield (0, User_1.getUserRepository)();
+        const getUserRepository = data_source_1.AppDataSource.getRepository(User_1.users);
         if (email && password) {
             let pass_sha = crypto.createHash('sha256').update(password).digest('hex');
-            let user = yield userRepository.findOne({ where: { email: email, password: pass_sha } });
+            let user = yield getUserRepository.findOneBy({ email: email, password: pass_sha });
             if (user) {
                 req.session.email = email;
                 req.session.username = user.username;
@@ -89,5 +90,15 @@ exports.router.post('/login', function (req, res, next) {
             res.send("invalid email or password");
             res.end();
         }
+    });
+});
+exports.router.get('/login', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+    });
+});
+exports.router.get('/login/:username', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        res.send("Hello " + req.params.username);
+        res.end();
     });
 });

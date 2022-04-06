@@ -8,19 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUserRepository = exports.users = void 0;
+exports.users = void 0;
 const typeorm_1 = require("typeorm");
 const Blog_1 = require("./Blog");
+const JobTitles_1 = require("./JobTitles");
 let users = class users {
 };
 __decorate([
@@ -52,9 +44,7 @@ __decorate([
     __metadata("design:type", String)
 ], users.prototype, "lastName", void 0);
 __decorate([
-    (0, typeorm_1.Column)({
-        nullable: true
-    }),
+    (0, typeorm_1.ManyToOne)(type => JobTitles_1.jobTitle, jobtitle => jobtitle.users, { nullable: true }),
     __metadata("design:type", String)
 ], users.prototype, "jobTitle", void 0);
 __decorate([
@@ -67,7 +57,7 @@ __decorate([
     (0, typeorm_1.Column)({
         nullable: true
     }),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], users.prototype, "phoneNumber", void 0);
 __decorate([
     (0, typeorm_1.Column)({
@@ -96,24 +86,21 @@ users = __decorate([
 ], users);
 exports.users = users;
 let connection;
-function getUserRepository() {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (connection === undefined) {
-            connection = yield (0, typeorm_1.createConnection)({
-                type: "postgres",
-                host: "localhost",
-                port: 5432,
-                username: "Cdzan",
-                password: "admin123",
-                database: "UCentrixNaloga",
-                synchronize: true,
-                logging: false,
-                entities: [
-                    users, Blog_1.blogs
-                ],
-            });
-        }
-        return connection.getRepository(users);
-    });
-}
-exports.getUserRepository = getUserRepository;
+// export async function getUserRepository(): Promise<Repository<users>> {
+//     if (connection===undefined) {
+//       connection = await createConnection({
+//         type: "postgres",
+//         host: "localhost",
+//         port: 5432,
+//         username: "Cdzan",
+//         password: "admin123",
+//         database: "UCentrixNaloga",
+//         synchronize: true,
+//         logging: false,
+//         entities: [
+//             users, blogs
+//         ],
+//       });
+//     }
+//     return connection.getRepository(users);
+// }

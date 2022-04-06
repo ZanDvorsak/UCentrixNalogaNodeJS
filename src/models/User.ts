@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, createConnection, Connection, Repository, OneToMany, ManyToOne, BaseEntity} from "typeorm"
 import { blogs } from "./Blog"
+import { jobTitle } from "./JobTitles"
 
 @Entity()
 export class users{
@@ -26,9 +27,7 @@ export class users{
     @Column()
     lastName: string
 
-    @Column({
-        nullable: true
-    })
+    @ManyToOne(type => jobTitle, jobtitle => jobtitle.users, {nullable: true})
     jobTitle: string
 
     @Column({
@@ -39,7 +38,7 @@ export class users{
     @Column({
         nullable: true
     })
-    phoneNumber: number
+    phoneNumber: string
 
     @Column({
         nullable: true
@@ -63,21 +62,21 @@ export class users{
 
 let connection:Connection;
 
-export async function getUserRepository(): Promise<Repository<users>> {
-    if (connection===undefined) {
-      connection = await createConnection({
-        type: "postgres",
-        host: "localhost",
-        port: 5432,
-        username: "Cdzan",
-        password: "admin123",
-        database: "UCentrixNaloga",
-        synchronize: true,
-        logging: false,
-        entities: [
-            users, blogs
-        ],
-      });
-    }
-    return connection.getRepository(users);
-}
+// export async function getUserRepository(): Promise<Repository<users>> {
+//     if (connection===undefined) {
+//       connection = await createConnection({
+//         type: "postgres",
+//         host: "localhost",
+//         port: 5432,
+//         username: "Cdzan",
+//         password: "admin123",
+//         database: "UCentrixNaloga",
+//         synchronize: true,
+//         logging: false,
+//         entities: [
+//             users, blogs
+//         ],
+//       });
+//     }
+//     return connection.getRepository(users);
+// }
