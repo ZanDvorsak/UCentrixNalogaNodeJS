@@ -14,6 +14,9 @@ const express_1 = require("express");
 const User_1 = require("../models/User");
 require("reflect-metadata");
 const data_source_1 = require("../../data-source");
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+dotenv.config();
 exports.router = (0, express_1.Router)();
 const crypto = require('crypto');
 const session = require('express-session');
@@ -24,7 +27,7 @@ exports.router.use(session({
 }));
 exports.router.post('/register', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let success = true;
+        let success = false;
         let emailValidator = require("email-validator");
         let email = req.body.email;
         let username = req.body.username;
@@ -54,22 +57,27 @@ exports.router.post('/register', function (req, res, next) {
             user.lastName = lastName;
             try {
                 const result = yield getUserRepository.save(user);
+                success = true;
             }
             catch (error) {
-                success = false;
                 res.send("Username or email already exists");
                 res.end();
             }
             if (success) {
-                res.redirect("/login/" + username);
+                res.status(200).send(username);
             }
         }
     });
 });
 exports.router.post('/login', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
+        let jwtSecretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY0OTM3MDIzMCwiaWF0IjoxNjQ5MzcwMjMwfQ.Ud0Jqcl-ZQ1tmj6eXu_HJzP4tZ_hwrWO9xdTS5GaFR8";
         let email = req.body.email;
         let password = req.body.password;
+        let data = {
+            email: email
+        };
+        const token = jwt.sign(data, jwtSecretKey);
         const getUserRepository = data_source_1.AppDataSource.getRepository(User_1.users);
         if (email && password) {
             let pass_sha = crypto.createHash('sha256').update(password).digest('hex');
@@ -77,7 +85,9 @@ exports.router.post('/login', function (req, res, next) {
             if (user) {
                 req.session.email = email;
                 req.session.username = user.username;
-                res.redirect("/blogs");
+                res.status(200).json({
+                    token: token
+                });
                 //res.send("login sucesfull");
                 res.end();
             }
@@ -96,9 +106,20 @@ exports.router.get('/login', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
     });
 });
+exports.router.get('/register', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+    });
+});
 exports.router.get('/login/:username', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         res.send("Hello " + req.params.username);
+        res.end();
+    });
+});
+exports.router.get('/logout', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        req.session.destroy();
+        res.redirect("/login");
         res.end();
     });
 });

@@ -9,25 +9,27 @@ import { RelationCountAttribute } from 'typeorm/query-builder/relation-count/Rel
 
 export const router: Router = Router()
 
-router.get('/blogs', async function (req: Request, res: Response, next: NextFunction) {
+router.get('/blogs:id', async function (req: Request, res: Response, next: NextFunction) {
     if(req.session.email)
     {    
-        let email = req.session.email;
-        let username = req.session.username;
+        let id = req.params.id;
 
         const query =  await AppDataSource.createQueryBuilder('users', 'u')
         .innerJoinAndSelect('u.blogs', 'b')
+        .select('u.username', 'username')
         .addSelect(['b.title, b.content'])
-        .where('u.email = :email', { email: email })
+        .where('u.id = :id', { id: id })
         .orderBy('b.id', 'ASC');
 
+        //!!!preveri result username
         let result = await query.getMany();    
         let blogs :any = result[0];
+        let username :any = result;
         let data;        
         if (result.length > 0) {
             blogs = blogs.blogs;
             data = {
-                username: username,
+                username: result,
                 blogs: blogs
             } 
         }
