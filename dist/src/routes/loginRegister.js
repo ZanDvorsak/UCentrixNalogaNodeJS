@@ -71,7 +71,7 @@ exports.router.post('/register', function (req, res, next) {
 });
 exports.router.post('/login', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let jwtSecretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY0OTM3MDIzMCwiaWF0IjoxNjQ5MzcwMjMwfQ.Ud0Jqcl-ZQ1tmj6eXu_HJzP4tZ_hwrWO9xdTS5GaFR8";
+        let jwtSecretKey = require('crypto').randomBytes(256).toString('base64');
         let email = req.body.email;
         let password = req.body.password;
         let data = {
@@ -86,7 +86,8 @@ exports.router.post('/login', function (req, res, next) {
                 req.session.email = email;
                 req.session.username = user.username;
                 res.status(200).json({
-                    token: token
+                    token: token,
+                    id: user.id
                 });
                 //res.send("login sucesfull");
                 res.end();

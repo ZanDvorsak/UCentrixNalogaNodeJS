@@ -69,7 +69,7 @@ router.post('/register', async function (req: Request, res: Response, next: Next
 
 
 router.post('/login', async function (req: Request, res: Response, next: NextFunction) {
-        let jwtSecretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY0OTM3MDIzMCwiaWF0IjoxNjQ5MzcwMjMwfQ.Ud0Jqcl-ZQ1tmj6eXu_HJzP4tZ_hwrWO9xdTS5GaFR8";
+        let jwtSecretKey = require('crypto').randomBytes(256).toString('base64')
         let email = req.body.email;
         let password = req.body.password;
         let data = {
@@ -86,7 +86,8 @@ router.post('/login', async function (req: Request, res: Response, next: NextFun
                 req.session.email = email;
                 req.session.username = user.username;
                 res.status(200).json({
-                    token: token
+                    token: token,
+                    id: user.id
                 });
                 //res.send("login sucesfull");
                 res.end();            

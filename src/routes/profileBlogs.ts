@@ -9,54 +9,59 @@ import { RelationCountAttribute } from 'typeorm/query-builder/relation-count/Rel
 
 export const router: Router = Router()
 
-router.get('/blogs:id', async function (req: Request, res: Response, next: NextFunction) {
-    if(req.session.email)
-    {    
-        let id = req.params.id;
+router.get('/blogs', async function (req: Request, res: Response, next: NextFunction) {   
+        let id = req.query.id;
 
         const query =  await AppDataSource.createQueryBuilder('users', 'u')
         .innerJoinAndSelect('u.blogs', 'b')
-        .select('u.username', 'username')
         .addSelect(['b.title, b.content'])
         .where('u.id = :id', { id: id })
         .orderBy('b.id', 'ASC');
 
         //!!!preveri result username
         let result = await query.getMany();    
-        let blogs :any = result[0];
-        let username :any = result;
-        let data;        
+        let all :any = result[0];
+        let blogs;        
         if (result.length > 0) {
-            blogs = blogs.blogs;
-            data = {
-                username: result,
-                blogs: blogs
-            } 
-        }
-        else {
-            data = {
-                username: username,
-            }
-        }       
-        res.send(data);
+            blogs = all.blogs;            
+        }        
+        res.send(blogs);
     }
-    else {
-        res.send("You are not logged in");
-    }
-});
+);
 
-router.post('/blogs', async function (req: Request, res: Response, next: NextFunction) {
-    if(req.session.email)
+router.get('/editBlog', async function (req: Request, res: Response, next: NextFunction) {   
+    let idPost = req.query.postId;
+    let userId = req.query.userId;
+    if (userId)
     {
-        let email = req.session.email;
+        const getBlogRepository = AppDataSource.getRepository(blogs);
+        const result =  await getBlogRepository.findOneBy({id: idPost});
+        if (result)
+        {
+            res.send(result);
+            res.end();
+        }
+        else{
+            res.send("Error");
+            res.end();
+        }
+
+    }
+
+}
+);
+
+router.post('/createBlog', async function (req: Request, res: Response, next: NextFunction) {
+
+        let userId = req.body.userId;
         let title = req.body.title;
         let content = req.body.content;
         let success = true;
-        if(title && content) {  
+        if(title && content && userId) {  
             try{
                 const queryRunner = await AppDataSource.createQueryRunner();
                 await queryRunner.connect();
-                const user = await queryRunner.manager.findOneBy(users, {email: email});
+                const user = await queryRunner.manager.findOneBy(users, {id: userId});
                 let blog = new blogs();
                 blog.title = title;
                 blog.content = content;
@@ -89,22 +94,20 @@ router.post('/blogs', async function (req: Request, res: Response, next: NextFun
         else {
             res.send("Blog title and content are required");
             res.end();
-        }
-    }
-    else {
-        res.redirect("/login");
-    }    
+        }   
+   
 });
 
-router.put('/blogs/:id', async function (req: Request, res: Response, next: NextFunction) {
-    if(req.session.email) {    
-        let id = req.params.id;
+router.put('/saveBlog', async function (req: Request, res: Response, next: NextFunction) {
+       
+        let id = req.body.id;
         let title = req.body.title;
         let content = req.body.content;
+        let userId = req.body.userId;
         let success = true;  
         const getBlogRepository = await AppDataSource.getRepository(blogs);      
         debugger;
-        if(title && content) {  
+        if(title && content && userId && id){  
             try{
                 const blog = await getBlogRepository.findOneBy({id: id});
                 blog.title = title;
@@ -117,23 +120,20 @@ router.put('/blogs/:id', async function (req: Request, res: Response, next: Next
                 res.end();
             }
             if(success) {
-                res.redirect("/blogs");
+                res.status(200);
             }  
         }
         else {
             res.send("Blog title and content are required");
             res.end();
-        }
-    }
-    else {
-        res.redirect("/login");
-    }
+        }   
+
 });
 
-router.delete('/blogs/:id', async function (req: Request, res: Response, next: NextFunction) {
-    if(req.session.email) {    
+router.delete('/deleteBlog/:id', async function (req: Request, res: Response, next: NextFunction) { 
         let id = req.params.id;
         let success = true;  
+        debugger;
         const getBlogRepository = await AppDataSource.getRepository(blogs);     
         try{
             const blog = await getBlogRepository.findOneBy({id: id});
@@ -145,10 +145,8 @@ router.delete('/blogs/:id', async function (req: Request, res: Response, next: N
             res.end();
         }
         if(success) {
-            res.redirect("/blogs");
+            res.status(200);
+            res.end();
         }  
-    }
-    else {
-        res.redirect("/login");
-    }
+
 });

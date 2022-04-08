@@ -18,130 +18,69 @@ const data_source_1 = require("../../data-source");
 exports.router = (0, express_1.Router)();
 exports.router.get('/blogs', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.email) {
-            let email = req.session.email;
-            let username = req.session.username;
-            const query = yield data_source_1.AppDataSource.createQueryBuilder('users', 'u')
-                .innerJoinAndSelect('u.blogs', 'b')
-                .addSelect(['b.title, b.content'])
-                .where('u.email = :email', { email: email })
-                .orderBy('b.id', 'ASC');
-            let result = yield query.getMany();
-            let blogs = result[0];
-            let data;
-            if (result.length > 0) {
-                blogs = blogs.blogs;
-                data = {
-                    username: username,
-                    blogs: blogs
-                };
-            }
-            else {
-                data = {
-                    username: username,
-                };
-            }
-            res.send(data);
+        let id = req.query.id;
+        const query = yield data_source_1.AppDataSource.createQueryBuilder('users', 'u')
+            .innerJoinAndSelect('u.blogs', 'b')
+            .addSelect(['b.title, b.content'])
+            .where('u.id = :id', { id: id })
+            .orderBy('b.id', 'ASC');
+        //!!!preveri result username
+        let result = yield query.getMany();
+        let all = result[0];
+        let blogs;
+        if (result.length > 0) {
+            blogs = all.blogs;
         }
-        else {
-            res.send("You are not logged in");
-        }
+        res.send(blogs);
     });
 });
-exports.router.post('/blogs', function (req, res, next) {
+exports.router.get('/editBlog', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.email) {
-            let email = req.session.email;
-            let title = req.body.title;
-            let content = req.body.content;
-            let success = true;
-            if (title && content) {
-                try {
-                    const queryRunner = yield data_source_1.AppDataSource.createQueryRunner();
-                    yield queryRunner.connect();
-                    const user = yield queryRunner.manager.findOneBy(User_1.users, { email: email });
-                    let blog = new Blog_1.blogs();
-                    blog.title = title;
-                    blog.content = content;
-                    blog.user = user;
-                    yield queryRunner.startTransaction();
-                    yield queryRunner.manager.save(blog);
-                    try {
-                        yield queryRunner.commitTransaction();
-                    }
-                    catch (error) {
-                        success = false;
-                        yield queryRunner.rollbackTransaction();
-                    }
-                    // await AppDataSource.transaction(async (transaction) => {
-                    //     let user = await transaction.findOneBy(users, {email: email});   
-                    //     debugger;
-                    //     await transaction.save(blog);
-                    // });
-                }
-                catch (error) {
-                    success = false;
-                    res.send("Error");
-                    res.end();
-                }
-                if (success) {
-                    res.redirect("/blogs");
-                }
+        let idPost = req.query.postId;
+        let userId = req.query.userId;
+        if (userId) {
+            const getBlogRepository = data_source_1.AppDataSource.getRepository(Blog_1.blogs);
+            const result = yield getBlogRepository.findOneBy({ id: idPost });
+            if (result) {
+                res.send(result);
+                res.end();
             }
             else {
-                res.send("Blog title and content are required");
+                res.send("Error");
                 res.end();
             }
         }
-        else {
-            res.redirect("/login");
-        }
     });
 });
-exports.router.put('/blogs/:id', function (req, res, next) {
+exports.router.post('/createBlog', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.email) {
-            let id = req.params.id;
-            let title = req.body.title;
-            let content = req.body.content;
-            let success = true;
-            const getBlogRepository = yield data_source_1.AppDataSource.getRepository(Blog_1.blogs);
-            debugger;
-            if (title && content) {
-                try {
-                    const blog = yield getBlogRepository.findOneBy({ id: id });
-                    blog.title = title;
-                    blog.content = content;
-                    yield getBlogRepository.save(blog);
-                }
-                catch (error) {
-                    success = false;
-                    res.send("Error");
-                    res.end();
-                }
-                if (success) {
-                    res.redirect("/blogs");
-                }
-            }
-            else {
-                res.send("Blog title and content are required");
-                res.end();
-            }
-        }
-        else {
-            res.redirect("/login");
-        }
-    });
-});
-exports.router.delete('/blogs/:id', function (req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        if (req.session.email) {
-            let id = req.params.id;
-            let success = true;
-            const getBlogRepository = yield data_source_1.AppDataSource.getRepository(Blog_1.blogs);
+        let userId = req.body.userId;
+        let title = req.body.title;
+        let content = req.body.content;
+        let success = true;
+        if (title && content && userId) {
             try {
-                const blog = yield getBlogRepository.findOneBy({ id: id });
-                yield getBlogRepository.remove(blog);
+                const queryRunner = yield data_source_1.AppDataSource.createQueryRunner();
+                yield queryRunner.connect();
+                const user = yield queryRunner.manager.findOneBy(User_1.users, { id: userId });
+                let blog = new Blog_1.blogs();
+                blog.title = title;
+                blog.content = content;
+                blog.user = user;
+                yield queryRunner.startTransaction();
+                yield queryRunner.manager.save(blog);
+                try {
+                    yield queryRunner.commitTransaction();
+                }
+                catch (error) {
+                    success = false;
+                    yield queryRunner.rollbackTransaction();
+                }
+                // await AppDataSource.transaction(async (transaction) => {
+                //     let user = await transaction.findOneBy(users, {email: email});   
+                //     debugger;
+                //     await transaction.save(blog);
+                // });
             }
             catch (error) {
                 success = false;
@@ -153,7 +92,60 @@ exports.router.delete('/blogs/:id', function (req, res, next) {
             }
         }
         else {
-            res.redirect("/login");
+            res.send("Blog title and content are required");
+            res.end();
+        }
+    });
+});
+exports.router.put('/saveBlog', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let id = req.body.id;
+        let title = req.body.title;
+        let content = req.body.content;
+        let userId = req.body.userId;
+        let success = true;
+        const getBlogRepository = yield data_source_1.AppDataSource.getRepository(Blog_1.blogs);
+        debugger;
+        if (title && content && userId && id) {
+            try {
+                const blog = yield getBlogRepository.findOneBy({ id: id });
+                blog.title = title;
+                blog.content = content;
+                yield getBlogRepository.save(blog);
+            }
+            catch (error) {
+                success = false;
+                res.send("Error");
+                res.end();
+            }
+            if (success) {
+                res.status(200);
+            }
+        }
+        else {
+            res.send("Blog title and content are required");
+            res.end();
+        }
+    });
+});
+exports.router.delete('/deleteBlog/:id', function (req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        let id = req.params.id;
+        let success = true;
+        debugger;
+        const getBlogRepository = yield data_source_1.AppDataSource.getRepository(Blog_1.blogs);
+        try {
+            const blog = yield getBlogRepository.findOneBy({ id: id });
+            yield getBlogRepository.remove(blog);
+        }
+        catch (error) {
+            success = false;
+            res.send("Error");
+            res.end();
+        }
+        if (success) {
+            res.status(200);
+            res.end();
         }
     });
 });
