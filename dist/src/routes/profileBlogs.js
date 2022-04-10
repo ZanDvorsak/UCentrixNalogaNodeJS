@@ -24,7 +24,6 @@ exports.router.get('/blogs', function (req, res, next) {
             .addSelect(['b.title, b.content'])
             .where('u.id = :id', { id: id })
             .orderBy('b.id', 'ASC');
-        //!!!preveri result username
         let result = yield query.getMany();
         let all = result[0];
         let blogs;

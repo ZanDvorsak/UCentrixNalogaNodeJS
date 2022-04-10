@@ -4,8 +4,8 @@ exports.AppDataSource = void 0;
 require("reflect-metadata");
 const typeorm_1 = require("typeorm");
 const Blog_1 = require("./src/models/Blog");
-const JobTitles_1 = require("./src/models/JobTitles");
 const User_1 = require("./src/models/User");
+const JobTitles_1 = require("./src/models/JobTitles");
 exports.AppDataSource = new typeorm_1.DataSource({
     type: "postgres",
     host: "localhost",

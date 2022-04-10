@@ -18,7 +18,6 @@ router.get('/blogs', async function (req: Request, res: Response, next: NextFunc
         .where('u.id = :id', { id: id })
         .orderBy('b.id', 'ASC');
 
-        //!!!preveri result username
         let result = await query.getMany();    
         let all :any = result[0];
         let blogs;        

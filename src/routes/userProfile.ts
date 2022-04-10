@@ -9,21 +9,24 @@ import { jobTitle } from '../models/JobTitles';
 
 export const router: Router = Router()
 
-router.get('/editProfile', async function (req: Request, res: Response, next: NextFunction) {
-    let email = req.session.email;
+router.get('/editUser', async function (req: Request, res: Response, next: NextFunction) {
     let success = true;
+    let userId = req.query.userId;
     let data;
-    if(email) {
         try{
+           
             const queryRunner = await AppDataSource.createQueryRunner();
-            await queryRunner.connect();
-            const jobTitles = await queryRunner.manager.find(jobTitle);
-            const user = await queryRunner.manager.findOneBy(users, {email: email});
-    
+            await queryRunner.connect();            
+            const jobTitles =  await queryRunner.manager.find(jobTitle);
+            const user = await queryRunner.manager.createQueryBuilder(users, 'u')
+            .innerJoin('u.jobTitle', 'j')
+            .addSelect('j.title')
+            .where('u.id = :id', { id: userId }).getOne();
             data = {
-                jobTitles: jobTitles,
-                user: user
-            }
+                user: user,
+                jobTitles: jobTitles
+            }    
+            
         }
         catch(err) {
             success = false;
@@ -31,14 +34,12 @@ router.get('/editProfile', async function (req: Request, res: Response, next: Ne
         }
         if(success) {
             res.send(data);
+            res.end();
         }
         else {
-            res.send("Error");
-        }
-    }  
-    else{
-        res.redirect("/login");
-    }       
+            res.status(500);
+            res.end();
+        }       
 });
 
 router.delete('/editProfile/delete', async function (req: Request, res: Response, next: NextFunction) {
@@ -66,13 +67,20 @@ router.delete('/editProfile/delete', async function (req: Request, res: Response
     }       
 });
 
-router.put('/editProfile/update', async function (req: Request, res: Response, next: NextFunction) {
-    let email = req.session.email;
+router.put('/saveProfile', async function (req: Request, res: Response, next: NextFunction) {
+    let id = req.body.id;
+    let firstName = req.body.firstName;
+    let lastName = req.body.lastName;
+    let website = req.body.website;
+    let jobTitle = req.body.jobTitle;
+    let phoneNumber = req.body.phoneNumber;
+    let age = req.body.age;
+    let gender = req.body.gender;
     let success = true;
-    if(email) {
+    debugger;
         try{
             const getUserRepository = await AppDataSource.getRepository(users);
-            const user = await getUserRepository.findOneBy({email: email});
+            const user = await getUserRepository.findOneBy({id: id});
             user.firstName = req.body.firstName;
             user.lastName = req.body.lastName;
             user.jobTitle = req.body.jobTitle;
@@ -85,17 +93,16 @@ router.put('/editProfile/update', async function (req: Request, res: Response, n
         }
         catch(err) {
             success = false;
-            console.log(err);
+            res.send("Error");
+            res.end();
         }
         if(success) {
-            res.redirect("/editProfile");
+            res.status(200);
+            res.end();
         }
         else {
             res.send("Error");
             res.end();
         }
-    }  
-    else{
-        res.redirect("/login");
-    }       
+    
 });

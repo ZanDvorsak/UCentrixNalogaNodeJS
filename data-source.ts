@@ -1,8 +1,8 @@
 import "reflect-metadata"
 import { DataSource } from "typeorm"
 import { blogs } from "./src/models/Blog"
-import { jobTitle } from "./src/models/JobTitles"
 import { users } from  "./src/models/User"
+import { jobTitle } from "./src/models/JobTitles"
 
 
 export const AppDataSource = new DataSource({
