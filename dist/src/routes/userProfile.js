@@ -29,10 +29,20 @@ exports.router.get('/editUser', function (req, res, next) {
                 .innerJoin('u.jobTitle', 'j')
                 .addSelect('j.title')
                 .where('u.id = :id', { id: userId }).getOne();
-            data = {
-                user: user,
-                jobTitles: jobTitles
-            };
+            if (user == null) {
+                const userWithoutJob = yield queryRunner.manager.findOne(User_1.users, { where: { id: userId } });
+                userWithoutJob.jobTitle = "";
+                data = {
+                    user: userWithoutJob,
+                    jobTitles: jobTitles
+                };
+            }
+            else {
+                data = {
+                    user: user,
+                    jobTitles: jobTitles
+                };
+            }
         }
         catch (err) {
             success = false;
@@ -48,29 +58,26 @@ exports.router.get('/editUser', function (req, res, next) {
         }
     });
 });
-exports.router.delete('/editProfile/delete', function (req, res, next) {
+exports.router.delete('/deleteUser/:id', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let email = req.session.email;
+        let id = req.params.id;
         let success = true;
-        if (email) {
-            try {
-                const getUserRepository = yield data_source_1.AppDataSource.getRepository(User_1.users);
-                const user = yield getUserRepository.findOneBy({ email: email });
-                yield getUserRepository.remove(user);
-            }
-            catch (err) {
-                success = false;
-                console.log(err);
-            }
-            if (success) {
-                res.send("Success");
-            }
-            else {
-                res.send("Error");
-            }
+        debugger;
+        try {
+            const getUserRepository = yield data_source_1.AppDataSource.getRepository(User_1.users);
+            const user = yield getUserRepository.findOneBy({ id: id });
+            yield getUserRepository.remove(user);
+        }
+        catch (err) {
+            success = false;
+            console.log(err);
+        }
+        if (success) {
+            res.status(200);
         }
         else {
-            res.redirect("/login");
+            res.send("Error");
+            res.end();
         }
     });
 });
@@ -84,19 +91,28 @@ exports.router.put('/saveProfile', function (req, res, next) {
         let phoneNumber = req.body.phoneNumber;
         let age = req.body.age;
         let gender = req.body.gender;
+        let biography = req.body.biography;
         let success = true;
         debugger;
         try {
             const getUserRepository = yield data_source_1.AppDataSource.getRepository(User_1.users);
             const user = yield getUserRepository.findOneBy({ id: id });
-            user.firstName = req.body.firstName;
-            user.lastName = req.body.lastName;
-            user.jobTitle = req.body.jobTitle;
-            user.phoneNumber = req.body.phoneNumber;
-            user.age = req.body.age;
-            user.gender = req.body.gender;
-            user.biography = req.body.biography;
-            user.website = req.body.website;
+            if (firstName != "" && firstName != null && firstName != undefined)
+                user.firstName = req.body.firstName;
+            if (lastName != "" && lastName != null && lastName != undefined)
+                user.lastName = req.body.lastName;
+            if (jobTitle != 0 && jobTitle != null && jobTitle != undefined)
+                user.jobTitle = req.body.jobTitle;
+            if (phoneNumber != "" && phoneNumber != null && phoneNumber != undefined)
+                user.phoneNumber = req.body.phoneNumber;
+            if (age != 0 && age != null && age != undefined)
+                user.age = req.body.age;
+            if (gender != 0 && gender != null && gender != undefined)
+                user.gender = req.body.gender;
+            if (biography != "" && biography != null && biography != undefined)
+                user.biography = req.body.biography;
+            if (website != "" && website != null && website != undefined)
+                user.website = req.body.website;
             yield getUserRepository.save(user);
         }
         catch (err) {

@@ -55,7 +55,7 @@ export class users{
     })
     biography: string
 
-    @OneToMany(type => blogs, blog => blog.user) 
+    @OneToMany(type => blogs, blog => blog.user, {onDelete: 'CASCADE' }) 
     blogs: blogs[];
 
 }

@@ -19,6 +19,9 @@ exports.router = (0, express_1.Router)();
 exports.router.get('/blogs', function (req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         let id = req.query.id;
+        let user = yield data_source_1.AppDataSource.createQueryBuilder(User_1.users, 'u')
+            .select('u.username')
+            .where('u.id = :id', { id: id }).getOne();
         const query = yield data_source_1.AppDataSource.createQueryBuilder('users', 'u')
             .innerJoinAndSelect('u.blogs', 'b')
             .addSelect(['b.title, b.content'])
@@ -30,7 +33,11 @@ exports.router.get('/blogs', function (req, res, next) {
         if (result.length > 0) {
             blogs = all.blogs;
         }
-        res.send(blogs);
+        let data = {
+            blogs: blogs,
+            username: user.username
+        };
+        res.send(data);
     });
 });
 exports.router.get('/editBlog', function (req, res, next) {

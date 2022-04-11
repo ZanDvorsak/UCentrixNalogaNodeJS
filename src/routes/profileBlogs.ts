@@ -11,6 +11,9 @@ export const router: Router = Router()
 
 router.get('/blogs', async function (req: Request, res: Response, next: NextFunction) {   
         let id = req.query.id;
+        let user = await AppDataSource.createQueryBuilder(users, 'u')
+        .select('u.username')
+        .where('u.id = :id', { id: id }).getOne();
 
         const query =  await AppDataSource.createQueryBuilder('users', 'u')
         .innerJoinAndSelect('u.blogs', 'b')
@@ -23,8 +26,12 @@ router.get('/blogs', async function (req: Request, res: Response, next: NextFunc
         let blogs;        
         if (result.length > 0) {
             blogs = all.blogs;            
-        }        
-        res.send(blogs);
+        }      
+        let data = {
+            blogs: blogs,
+            username: user.username
+        }  
+        res.send(data);
     }
 );
 

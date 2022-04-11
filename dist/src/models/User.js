@@ -78,7 +78,7 @@ __decorate([
     __metadata("design:type", String)
 ], users.prototype, "biography", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(type => Blog_1.blogs, blog => blog.user),
+    (0, typeorm_1.OneToMany)(type => Blog_1.blogs, blog => blog.user, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], users.prototype, "blogs", void 0);
 users = __decorate([

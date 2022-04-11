@@ -89,16 +89,15 @@ exports.router.post('/login', function (req, res, next) {
                     token: token,
                     id: user.id
                 });
-                //res.send("login sucesfull");
                 res.end();
             }
             else {
-                res.send("Invalid email or password");
+                res.status(400);
                 res.end();
             }
         }
         else {
-            res.send("invalid email or password");
+            res.send("Email or password should not be empty");
             res.end();
         }
     });

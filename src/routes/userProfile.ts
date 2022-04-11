@@ -19,14 +19,23 @@ router.get('/editUser', async function (req: Request, res: Response, next: NextF
             await queryRunner.connect();            
             const jobTitles =  await queryRunner.manager.find(jobTitle);
             const user = await queryRunner.manager.createQueryBuilder(users, 'u')
-            .innerJoin('u.jobTitle', 'j')
-            .addSelect('j.title')
-            .where('u.id = :id', { id: userId }).getOne();
-            data = {
-                user: user,
-                jobTitles: jobTitles
-            }    
-            
+                .innerJoin('u.jobTitle', 'j')
+                .addSelect('j.title')
+                .where('u.id = :id', { id: userId }).getOne();
+            if(user == null){
+                const userWithoutJob = await queryRunner.manager.findOne(users, {where: {id: userId}});
+                userWithoutJob.jobTitle = "";
+                data = {
+                    user: userWithoutJob,
+                    jobTitles: jobTitles
+                } 
+            }
+            else {                
+                data = {
+                    user: user,
+                    jobTitles: jobTitles
+                }
+            }     
         }
         catch(err) {
             success = false;
@@ -42,13 +51,13 @@ router.get('/editUser', async function (req: Request, res: Response, next: NextF
         }       
 });
 
-router.delete('/editProfile/delete', async function (req: Request, res: Response, next: NextFunction) {
-    let email = req.session.email;
+router.delete('/deleteUser/:id', async function (req: Request, res: Response, next: NextFunction) {
+    let id = req.params.id;
     let success = true;
-    if(email) {
+    debugger;
         try{
             const getUserRepository = await AppDataSource.getRepository(users);
-            const user = await getUserRepository.findOneBy({email: email});
+            const user = await getUserRepository.findOneBy({id: id});
             await getUserRepository.remove(user);
         }
         catch(err) {
@@ -56,15 +65,13 @@ router.delete('/editProfile/delete', async function (req: Request, res: Response
             console.log(err);
         }
         if(success) {
-            res.send("Success");
+            res.status(200);
         }
         else {
             res.send("Error");
+            res.end();
         }
-    }  
-    else{
-        res.redirect("/login");
-    }       
+      
 });
 
 router.put('/saveProfile', async function (req: Request, res: Response, next: NextFunction) {
@@ -76,19 +83,30 @@ router.put('/saveProfile', async function (req: Request, res: Response, next: Ne
     let phoneNumber = req.body.phoneNumber;
     let age = req.body.age;
     let gender = req.body.gender;
+    let biography = req.body.biography;
     let success = true;
     debugger;
         try{
             const getUserRepository = await AppDataSource.getRepository(users);
             const user = await getUserRepository.findOneBy({id: id});
+
+            if(firstName != "" && firstName != null && firstName != undefined)
             user.firstName = req.body.firstName;
+            if(lastName != "" && lastName != null && lastName != undefined)
             user.lastName = req.body.lastName;
+            if(jobTitle != 0 && jobTitle != null && jobTitle != undefined)
             user.jobTitle = req.body.jobTitle;
+            if(phoneNumber != "" && phoneNumber != null && phoneNumber != undefined)
             user.phoneNumber = req.body.phoneNumber;
+            if(age != 0 && age != null && age != undefined)
             user.age = req.body.age;
+            if(gender != 0 && gender != null && gender != undefined)
             user.gender = req.body.gender;
+            if(biography != "" && biography != null && biography != undefined)
             user.biography = req.body.biography;
+            if(website != "" && website != null && website != undefined)
             user.website = req.body.website;
+            
             await getUserRepository.save(user);
         }
         catch(err) {
