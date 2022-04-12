@@ -23,7 +23,7 @@ __decorate([
     __metadata("design:type", String)
 ], jobTitle.prototype, "title", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(type => User_1.users, user => user.jobTitle),
+    (0, typeorm_1.OneToMany)(type => User_1.users, user => user.jobTitle, { onDelete: 'CASCADE' }),
     __metadata("design:type", Array)
 ], jobTitle.prototype, "users", void 0);
 jobTitle = __decorate([

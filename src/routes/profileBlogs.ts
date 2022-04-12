@@ -21,15 +21,20 @@ router.get('/blogs', async function (req: Request, res: Response, next: NextFunc
         .where('u.id = :id', { id: id })
         .orderBy('b.id', 'ASC');
 
-        let result = await query.getMany();    
+        let result = await query.getMany(); 
         let all :any = result[0];
+        let blogCount = 0;
+        if (all != undefined) {
+            blogCount = all.blogs.length;
+        }
         let blogs;        
         if (result.length > 0) {
             blogs = all.blogs;            
         }      
         let data = {
             blogs: blogs,
-            username: user.username
+            username: user.username,
+            blogCount: blogCount
         }  
         res.send(data);
     }
@@ -72,29 +77,16 @@ router.post('/createBlog', async function (req: Request, res: Response, next: Ne
                 blog.title = title;
                 blog.content = content;
                 blog.user = user;
-                await queryRunner.startTransaction();
                 await queryRunner.manager.save(blog);
-                try{
-                    await queryRunner.commitTransaction();
-                }catch(error) {
-                    success=false;
-                    await queryRunner.rollbackTransaction();
-                }
-                
-                // await AppDataSource.transaction(async (transaction) => {
-                //     let user = await transaction.findOneBy(users, {email: email});   
-                
-                //     debugger;
-                //     await transaction.save(blog);
-                // });
+
             }
             catch(error) {
-                success=false;
-                res.send("Error");
+                res.status(500);
                 res.end();
             }
             if(success) {
-                res.redirect("/blogs");
+                res.status(200);
+                res.end();
             }  
         }
         else {

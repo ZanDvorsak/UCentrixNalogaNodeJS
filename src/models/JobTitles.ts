@@ -9,7 +9,7 @@ export class jobTitle {
     @Column()
     title: string;
 
-    @OneToMany(type => users, user => user.jobTitle)
+    @OneToMany(type => users, user => user.jobTitle, {onDelete: 'CASCADE' })
     users: users[]; 
 
 }

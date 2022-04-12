@@ -85,22 +85,3 @@ users = __decorate([
     (0, typeorm_1.Entity)()
 ], users);
 exports.users = users;
-let connection;
-// export async function getUserRepository(): Promise<Repository<users>> {
-//     if (connection===undefined) {
-//       connection = await createConnection({
-//         type: "postgres",
-//         host: "localhost",
-//         port: 5432,
-//         username: "Cdzan",
-//         password: "admin123",
-//         database: "UCentrixNaloga",
-//         synchronize: true,
-//         logging: false,
-//         entities: [
-//             users, blogs
-//         ],
-//       });
-//     }
-//     return connection.getRepository(users);
-// }

@@ -11,28 +11,8 @@ export class blogs {
     @Column()
     content: string;
 
-    @ManyToOne(type => users, user => user.blogs) 
+    @ManyToOne(type => users, user => user.blogs, {onDelete: 'CASCADE' }) 
     user: users;    
 }
 
-let connection:Connection;
-
-// export async function getBlogRepository(): Promise<Repository<blogs>> {
-//     if (connection===undefined) {
-//       connection = await createConnection({
-//         type: "postgres",
-//         host: "localhost",
-//         port: 5432,
-//         username: "Cdzan",
-//         password: "admin123",
-//         database: "UCentrixNaloga",
-//         synchronize: true,
-//         logging: false,
-//         entities: [
-//             blogs, users
-//         ],
-//       });
-//     }
-//     return connection.getRepository(blogs);
-//   }
 

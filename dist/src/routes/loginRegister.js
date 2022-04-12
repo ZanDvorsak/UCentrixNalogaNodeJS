@@ -102,24 +102,3 @@ exports.router.post('/login', function (req, res, next) {
         }
     });
 });
-exports.router.get('/login', function (req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-    });
-});
-exports.router.get('/register', function (req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-    });
-});
-exports.router.get('/login/:username', function (req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        res.send("Hello " + req.params.username);
-        res.end();
-    });
-});
-exports.router.get('/logout', function (req, res, next) {
-    return __awaiter(this, void 0, void 0, function* () {
-        req.session.destroy();
-        res.redirect("/login");
-        res.end();
-    });
-});

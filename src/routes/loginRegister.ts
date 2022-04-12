@@ -100,24 +100,8 @@ router.post('/login', async function (req: Request, res: Response, next: NextFun
             res.send("Email or password should not be empty");
             res.end()
         } 
-    });   
-    
-router.get('/login', async function (req: Request, res: Response, next: NextFunction) {
-
-});
-
-router.get('/register', async function (req: Request, res: Response, next: NextFunction) {
+    });       
 
 
-});
 
-router.get('/login/:username', async function (req: Request, res: Response, next: NextFunction) {
-    res.send("Hello " + req.params.username);
-    res.end();
-});
 
-router.get('/logout', async function (req: Request, res: Response, next: NextFunction) {
-    req.session.destroy();
-    res.redirect("/login");
-    res.end();
-});

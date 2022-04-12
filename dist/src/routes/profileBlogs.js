@@ -29,13 +29,18 @@ exports.router.get('/blogs', function (req, res, next) {
             .orderBy('b.id', 'ASC');
         let result = yield query.getMany();
         let all = result[0];
+        let blogCount = 0;
+        if (all != undefined) {
+            blogCount = all.blogs.length;
+        }
         let blogs;
         if (result.length > 0) {
             blogs = all.blogs;
         }
         let data = {
             blogs: blogs,
-            username: user.username
+            username: user.username,
+            blogCount: blogCount
         };
         res.send(data);
     });
@@ -73,28 +78,15 @@ exports.router.post('/createBlog', function (req, res, next) {
                 blog.title = title;
                 blog.content = content;
                 blog.user = user;
-                yield queryRunner.startTransaction();
                 yield queryRunner.manager.save(blog);
-                try {
-                    yield queryRunner.commitTransaction();
-                }
-                catch (error) {
-                    success = false;
-                    yield queryRunner.rollbackTransaction();
-                }
-                // await AppDataSource.transaction(async (transaction) => {
-                //     let user = await transaction.findOneBy(users, {email: email});   
-                //     debugger;
-                //     await transaction.save(blog);
-                // });
             }
             catch (error) {
-                success = false;
-                res.send("Error");
+                res.status(500);
                 res.end();
             }
             if (success) {
-                res.redirect("/blogs");
+                res.status(200);
+                res.end();
             }
         }
         else {

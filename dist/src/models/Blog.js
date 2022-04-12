@@ -27,29 +27,10 @@ __decorate([
     __metadata("design:type", String)
 ], blogs.prototype, "content", void 0);
 __decorate([
-    (0, typeorm_1.ManyToOne)(type => User_1.users, user => user.blogs),
+    (0, typeorm_1.ManyToOne)(type => User_1.users, user => user.blogs, { onDelete: 'CASCADE' }),
     __metadata("design:type", User_1.users)
 ], blogs.prototype, "user", void 0);
 blogs = __decorate([
     (0, typeorm_1.Entity)()
 ], blogs);
 exports.blogs = blogs;
-let connection;
-// export async function getBlogRepository(): Promise<Repository<blogs>> {
-//     if (connection===undefined) {
-//       connection = await createConnection({
-//         type: "postgres",
-//         host: "localhost",
-//         port: 5432,
-//         username: "Cdzan",
-//         password: "admin123",
-//         database: "UCentrixNaloga",
-//         synchronize: true,
-//         logging: false,
-//         entities: [
-//             blogs, users
-//         ],
-//       });
-//     }
-//     return connection.getRepository(blogs);
-//   }

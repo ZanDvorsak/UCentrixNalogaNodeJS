@@ -1,0 +1,12 @@
+/register - POST (Saves user to database)
+/login - POST (Logins a user)
+
+/blogs - GET (Get username, blogs and number of blogs)
+/editBlog - GET (Get blog you want to edit)
+/saveBlog - PUT (Saves the edited blog)
+/deleteBlog/:id - DELETE (Removes blog from database)
+/createBlog - POST  (Saves blog to database)
+
+/editUser - GET (Gets all user details for editing)
+/deleteUser/:id - DELETE (Removes user from database)
+/saveProfile - PUT (Saves edited infromation from user)
